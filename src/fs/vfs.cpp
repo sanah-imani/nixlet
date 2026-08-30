@@ -438,6 +438,19 @@ std::optional<StatResult> VFS::lstat(const std::string& path, const std::string&
     return stat_impl(path, cwd, /*follow=*/false);
 }
 
+bool VFS::touch(const std::string& path, const std::string& cwd){
+    std::string name;
+    Inode* parent = resolve_parent(path, cwd, name);
+    if (!parent) return false;
+    
+    auto it = parent->children.find(name);
+    if (it != parent->children.end()) {
+        it->second->atime = now();
+        it->second->mtime = now();
+        return true;
+    }
+    return create(path, cwd);
+}
 // ---------------------------------------------------------------------------
 // Serialization
 // ---------------------------------------------------------------------------

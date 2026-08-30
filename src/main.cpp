@@ -1,34 +1,27 @@
 #include <emscripten/emscripten.h>
 #include <string>
-#include <cstring>
-#include <cstdlib>
+#include "shell/shell.h"
+#include "fs/vfs.h"
 
-// Forward declarations (implementations will live in shell/, fs/, proc/, utils/)
-// For now: stub that echoes back, so we can verify the WASM pipeline.
-
+static Shell       g_shell;
 static std::string g_output_buf;
 
 extern "C" {
 
 EMSCRIPTEN_KEEPALIVE
 void nixlet_init() {
-    // TODO: initialise VFS, shell state, process table
-    g_output_buf.clear();
+    g_shell.init();
 }
 
-// Takes a null-terminated command line string.
-// Returns a pointer to a null-terminated output string (valid until next call).
 EMSCRIPTEN_KEEPALIVE
 const char* nixlet_input(const char* line) {
-    if (!line) return "";
-
-    // Stub: echo the command back until real shell is wired in.
-    g_output_buf = std::string("nixlet: ") + line + " (shell not yet implemented)\n";
+    g_output_buf = g_shell.execute(line ? line : "");
     return g_output_buf.c_str();
 }
 
 EMSCRIPTEN_KEEPALIVE
 void nixlet_free() {
+    VFS::get().reset();
     g_output_buf.clear();
     g_output_buf.shrink_to_fit();
 }

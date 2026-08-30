@@ -118,6 +118,8 @@ public:
     std::optional<StatResult> stat(const std::string& path, const std::string& cwd);
     std::optional<StatResult> lstat(const std::string& path, const std::string& cwd);
 
+    bool touch(const std::string& path, const std::string& cwd);
+
     // ── Error ────────────────────────────────────────────────────────────────
 
     // Human-readable message from the last failed call.  Empty on success.
