@@ -1,0 +1,10 @@
+build/
+build-native/
+dist/
+web/node_modules/
+web/.vite/
+*.o
+*.a
+*.out.js
+*.out.wasm
+.cache/
