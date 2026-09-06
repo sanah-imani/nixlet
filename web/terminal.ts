@@ -2,7 +2,9 @@ import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import '@xterm/xterm/css/xterm.css'
-import { loadNixlet } from './wasm-loader'
+import { loadNixlet, NixletAPI } from './wasm-loader'
+
+const VFS_STORAGE_KEY = 'nixlet_vfs'
 
 const term = new Terminal({
   cursorBlink: true,
@@ -31,17 +33,25 @@ fitAddon.fit()
 
 window.addEventListener('resize', () => fitAddon.fit())
 
-// ── boot ──────────────────────────────────────────────────────────────────────
-
 async function boot() {
   term.writeln('\x1b[1;32mnixlet\x1b[0m v0.1.0 — a tiny Unix-like environment')
   term.writeln('Loading kernel...')
 
-  let nixlet: Awaited<ReturnType<typeof loadNixlet>>
+  let nixlet: NixletAPI
 
   try {
     nixlet = await loadNixlet()
     nixlet.init()
+
+    const saved = localStorage.getItem(VFS_STORAGE_KEY)
+    if (saved) {
+      nixlet.deserialize(saved)
+    }
+
+    window.addEventListener('beforeunload', () => {
+      localStorage.setItem(VFS_STORAGE_KEY, nixlet.serialize())
+    })
+
     term.writeln('\x1b[32mReady.\x1b[0m\r\n')
   } catch (e) {
     term.writeln(`\x1b[31mFailed to load WASM module: ${e}\x1b[0m`)
@@ -58,7 +68,6 @@ async function boot() {
     const code = domEvent.keyCode
 
     if (code === 13) {
-      // Enter
       term.writeln('')
       const line = inputBuffer.trim()
       inputBuffer = ''
@@ -66,7 +75,6 @@ async function boot() {
       if (line) {
         const output = nixlet.input(line)
         if (output) {
-          // Normalize newlines for xterm (\n -> \r\n)
           term.write(output.replace(/\n/g, '\r\n'))
           if (!output.endsWith('\n')) term.writeln('')
         }
@@ -74,7 +82,6 @@ async function boot() {
 
       prompt()
     } else if (code === 8) {
-      // Backspace
       if (inputBuffer.length > 0) {
         inputBuffer = inputBuffer.slice(0, -1)
         term.write('\b \b')

@@ -26,4 +26,15 @@ void nixlet_free() {
     g_output_buf.shrink_to_fit();
 }
 
+EMSCRIPTEN_KEEPALIVE
+const char* nixlet_serialize(){
+    g_output_buf = VFS::get().serialize();
+    return g_output_buf.c_str();
+}
+
+EMSCRIPTEN_KEEPALIVE
+bool nixlet_deserialize(const char* json){
+    if (!json) return false;
+    return VFS::get().deserialize(json);
+}
 } // extern "C"

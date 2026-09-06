@@ -25,7 +25,7 @@ if(EMSCRIPTEN)
     )
     target_link_options(nixlet PRIVATE
         -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,UTF8ToString,stringToUTF8
-        -sEXPORTED_FUNCTIONS=_nixlet_init,_nixlet_input,_nixlet_free
+        -sEXPORTED_FUNCTIONS=_nixlet_init,_nixlet_input,_nixlet_free,_nixlet_serialize,_nixlet_deserialize
         -sALLOW_MEMORY_GROWTH=1
         -sMODULARIZE=1
         -sEXPORT_NAME=NixletModule
