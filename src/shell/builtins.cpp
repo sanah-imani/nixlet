@@ -73,7 +73,8 @@ std::string env(Shell& sh, const Command&) {
 
 std::string export_(Shell& sh, const Command& cmd) {
     if (cmd.argv.size() < 2) {
-        return export_(sh, cmd);
+        sh.set_exit_code(0);
+        return "";
     }
     for (size_t i = 1; i < cmd.argv.size(); ++i) {
         const std::string& arg = cmd.argv[i];

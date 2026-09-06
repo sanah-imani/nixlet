@@ -69,7 +69,9 @@ std::string grep(Shell& sh, const Command& cmd) {
         return "grep: missing pattern\n";
     }
 
-    auto flags = std::regex::ECMAScript | (flag_i ? std::regex::icase : std::regex_constants::syntax_option_type{});
+    auto flags = flag_i
+        ? std::regex::ECMAScript | std::regex::icase
+        : std::regex::ECMAScript;
     std::regex pattern;
     try { pattern = std::regex(pattern_str, flags); }
     catch (const std::regex_error&) {

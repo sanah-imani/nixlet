@@ -33,17 +33,21 @@ std::string rm(Shell& sh, const Command& cmd) {
             return "rm: " + target + ": " + VFS::get().last_error() + "\n";
         }
 
+        if (entry->type == InodeType::Directory && !recursive) {
+            if (!force) {
+                sh.set_exit_code(1);
+                return "rm: " + target + ": is a directory\n";
+            }
+            continue;
+        }
+
         bool ok = (entry->type == InodeType::Directory)
-            ? (recursive ? VFS::get().rmdir(target, sh.cwd(), true)
-                         : (sh.set_exit_code(1), false))
+            ? VFS::get().rmdir(target, sh.cwd(), true)
             : VFS::get().unlink(target, sh.cwd());
 
         if (!ok && !force) {
             sh.set_exit_code(1);
-            return "rm: " + target + ": " +
-                   (entry->type == InodeType::Directory && !recursive
-                       ? "is a directory\n"
-                       : VFS::get().last_error() + "\n");
+            return "rm: " + target + ": " + VFS::get().last_error() + "\n";
         }
     }
 
