@@ -11,6 +11,10 @@ struct Command {
     std::string              stdout_append;
 };
 
+// Forward declare so shell.h doesn't need to include parser.h
+struct Pipeline;
+class  Parser;
+
 class Shell {
 public:
     Shell();
@@ -33,7 +37,7 @@ public:
 private:
     using BuiltinFn = std::function<std::string(Shell&, const Command&)>;
 
-    Command     parse_line(const std::string& line) const;
+    std::string execute_pipeline(const Pipeline& pl);
     std::string expand_vars(const std::string& s) const;
     std::string dispatch(const Command& cmd);
 
