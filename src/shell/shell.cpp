@@ -3,6 +3,7 @@
 #include "builtins.h"
 #include "../fs/vfs.h"
 #include "../utils/util.h"
+#include "../process/process.h"
 #include <cctype>
 
 static Parser g_parser;
@@ -95,6 +96,13 @@ std::string Shell::execute(const std::string& line) {
 }
 
 std::string Shell::execute_pipeline(const Pipeline& pl) {
+    bool has_pipe = false;
+    for (const auto& op: pl.ops)
+        if (op == ChainOp::Pipe) { has_pipe = true; break;}
+    
+    if (has_pipe)
+        return run_pipeline(*this, pl);
+
     std::string out;
 
     for (size_t i = 0; i < pl.commands.size(); ++i) {
@@ -104,12 +112,6 @@ std::string Shell::execute_pipeline(const Pipeline& pl) {
         // by parser — single-quoted values arrive verbatim and are not expanded)
         for (auto& arg : cmd.argv)
             arg = expand_vars(arg);
-
-        // Pipe: not yet implemented — requires process model
-        if (i > 0 && pl.ops[i-1] == ChainOp::Pipe) {
-            out += "nixlet: pipes not yet implemented\n";
-            break;
-        }
 
         // && — skip if previous command failed
         if (i > 0 && pl.ops[i-1] == ChainOp::And && _last_exit != 0)

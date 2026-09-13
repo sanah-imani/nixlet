@@ -9,6 +9,7 @@ struct Command {
     std::string              stdin_file;
     std::string              stdout_file;
     std::string              stdout_append;
+    std::string              stdin_data;
 };
 
 // Forward declare so shell.h doesn't need to include parser.h
@@ -33,6 +34,8 @@ public:
 
     void set_exit_code(int n) { _last_exit = n; }
     int  last_exit_code() const { return _last_exit; }
+
+    friend std::string run_pipeline(Shell& sh, const Pipeline& pl);
 
 private:
     using BuiltinFn = std::function<std::string(Shell&, const Command&)>;

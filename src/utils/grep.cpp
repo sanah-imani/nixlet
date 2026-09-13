@@ -84,8 +84,12 @@ std::string grep(Shell& sh, const Command& cmd) {
         out = search_dir(files.empty() ? sh.cwd() : files[0], sh.cwd(), pattern, flag_n);
     } else {
         if (files.empty()) {
-            sh.set_exit_code(1);
-            return "grep: missing file operand\n";
+            if (!cmd.stdin_data.empty()){
+                out = search_file(cmd.stdin_data,"(stdin)", pattern, flag_n, false);
+            } else { 
+                sh.set_exit_code(1);
+                return "grep: missing file operand\n";
+            }
         }
         bool multi_file = files.size() > 1;
         for (const auto& file : files) {
