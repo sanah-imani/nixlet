@@ -37,4 +37,10 @@ bool nixlet_deserialize(const char* json){
     if (!json) return false;
     return VFS::get().deserialize(json);
 }
+
+EMSCRIPTEN_KEEPALIVE
+const char* nixlet_cwd() {
+    g_output_buf = g_shell.cwd();
+    return g_output_buf.c_str();
+}
 } // extern "C"
